@@ -1,0 +1,14 @@
+name: "Enterprise AI Inbox Simulator"
+description: >
+  A simulated real-world enterprise email triage environment where AI agents
+  must analyze incoming emails, assign priority, classify into categories,
+  and take appropriate response actions while adhering to SLAs and customer
+  tier constraints.
+tasks:
+  - easy:
+      description: "Simple spam detection and basic billing emails."
+  - medium:
+      description: "Mixed intent emails including technical and billing confusion."
+  - hard:
+      description: "Urgent, ambiguous, real-world scenarios with SLA pressure and upset premium customers."
+entrypoint: "environment:InboxEnv"

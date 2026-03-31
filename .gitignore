@@ -1,0 +1,18 @@
+# Python
+.venv/
+env/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+dist/
+
+# Env & Secrets
+.env
+
+# Logs & Data
+logs.jsonl
+leaderboard.json
+
+.vercel
