@@ -39,28 +39,55 @@ Included in `openenv.yaml`:
 ## 💻 Setup Instructions
 
 ### 1. Local Run
-To run this application locally without Docker, you will need an active OpenAI API Key for the multi-agent system.
+To run this application locally without Docker, you will need an active OpenAI API Key for the multi-agent system (unless using offline fallback).
+
+#### Proper cloud mode (recommended)
 ```bash
 # 1. Clone the project and set key (Windows PowerShell shown)
 $env:OPENAI_API_KEY="sk-..."
 
-# 2. Install Backend Dependencies
+# 2. Install backend dependencies
 pip install -r requirements.txt
 
-# 3. Scaffold and build the UI
+# 3. Build frontend
 cd frontend
 npm install
 npm run build
 cd ..
 
-# 4. Start the FastAPI Server via helper entrypoint
+# 4. Start backend server (wrapper with host/port env support)
 python run_backend.py
 
-# Optionally use custom port:
+# custom port example:
 $env:PORT=7860
 python run_backend.py
 ```
-Then navigate to `http://localhost:8000/` (or `http://localhost:7860/` if custom port set).
+Then navigate to `http://localhost:7860/` (or `http://localhost:8000/` if using other port).
+
+#### Quick full-stack command (single terminal)
+```bash
+cd "c:\Users\niles\OneDrive\Desktop\enterprise ai indox simulator"
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+cd frontend
+npm install
+npm run build
+cd ..
+python run_backend.py
+```
+
+Now the app serves React frontend (`frontend/dist`) and backend API from the same process.
+
+#### Offline fallback mode (works without OpenAI key/quota)
+If `OPENAI_API_KEY` is missing, invalid, or quota is exhausted, the app will now automatically use local heuristic agents (no external API calls). This makes development stable while you obtain a valid OpenAI API key.
+
+1. Ensure `.env` exists (or set env var):
+   - `OPENAI_API_KEY="sk-..."` (preferred cloud mode)
+   - or omit/invalid key to trigger offline mode.
+2. Run the same commands above (backend + frontend builds).
+3. Verify with `curl http://localhost:8000/api/ping`.
+
+This is intended for local testing and not for production workloads.
 
 ### 2. Docker Run (Hugging Face Spaces Ready)
 This project is pre-configured to build into a multi-stage Docker container natively serving the React output over FastAPI port `7860`.

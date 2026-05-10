@@ -91,6 +91,10 @@ async def get_leaderboard():
     """Retrieve leaderboard scores"""
     return AnalyticsTracker.get_leaderboard()
 
+@app.get("/ping")
+async def ping():
+    return {"status": "ok", "message": "Enterprise AI Inbox Simulator is up"}
+
 class AutoStepRequest(BaseModel):
     state: EnvState
 
@@ -141,7 +145,30 @@ async def auto_step(req: AutoStepRequest):
 
 # Entrypoint to serve static files (Once React is built)
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 import os
 
+# API routes are already defined above. 
+# Any other route should serve the React app (index.html) to allow client-side routing.
+
 if os.path.exists("frontend/dist"):
-    app.mount("/", StaticFiles(directory="frontend/dist", html=True), name="frontend")
+    # Mount assets (js, css, images)
+    app.mount("/assets", StaticFiles(directory="frontend/dist/assets"), name="assets")
+    
+    # Catch-all for React Router
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        # Prevent API routes from being caught if they weren't matched above
+        # (Though FastAPI matches in order, so this is just a safety measure)
+        if full_path.startswith("api/"):
+             raise HTTPException(status_code=404)
+        
+        # Serve index.html for all other paths
+        index_path = os.path.join("frontend/dist", "index.html")
+        if os.path.exists(index_path):
+            return FileResponse(index_path)
+        return {"error": "Frontend build not found"}
+else:
+    @app.get("/")
+    async def root():
+        return {"message": "Frontend build (frontend/dist) not found. Please run npm build."}
